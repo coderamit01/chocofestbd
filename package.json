@@ -8,9 +8,10 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "test": "vitest",
-    "db:migrate": "prisma migrate dev",
+    "migrate": "prisma migrate dev",
     "generate": "prisma generate",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "seed": "tsx src/utils/seedSuperAdmin"
   },
   "repository": {
     "type": "git",

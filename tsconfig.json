@@ -1,13 +1,15 @@
 {
   "compilerOptions": {
-    "target": "ES2023",
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "outDir": "./dist",
+    // File Layout
     "rootDir": "./src",
-    "strict": true,
-    "esModuleInterop": true,
-    "types": [],
+    "outDir": "./dist",
+
+    // Environment Settings
+    "module": "ESNext",
+    "target": "ES2023",
+    "lib": ["esnext"],
+    "types": ["node"],
+    "moduleResolution": "bundler",
 
     // Other Outputs
     "sourceMap": true,
@@ -16,11 +18,16 @@
 
     // Stricter Typechecking Options
     "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
 
-    "verbatimModuleSyntax": true,
-    "isolatedModules": true,
-    "noUncheckedSideEffectImports": true,
-    "moduleDetection": "force",
+    // Recommended Options
+    "strict": true,
+    "esModuleInterop": true,
+    "ignoreDeprecations": "5.0",
     "skipLibCheck": true,
-  }
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true
+  },
+  "include": ["src/**/*", "../generated/**/*"],
+  "exclude": ["node_modules", "dist"]
 }

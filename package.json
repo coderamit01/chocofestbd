@@ -9,6 +9,7 @@
     "start": "node dist/server.js",
     "test": "vitest",
     "db:migrate": "prisma migrate dev",
+    "generate": "prisma generate",
     "db:studio": "prisma studio"
   },
   "repository": {
@@ -43,6 +44,7 @@
     "@types/node": "^26.6.6",
     "@types/pg": "^8.23.1",
     "prisma": "^7.10.1",
+    "tsx": "^4.23.15",
     "typescript": "^7.0.2"
   }
 }

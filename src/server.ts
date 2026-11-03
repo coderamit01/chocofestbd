@@ -1,17 +1,21 @@
-import express from 'express'
+import { prisma } from './lib/prisma'
+import app from './app'
 
 
-const app = express()
-const port = 5000
+
+const port = process.env.PORT || 5000;
 
 async function main() {
   try {
+    await prisma.$connect()
     app.listen(port, () => {
       console.log(`Server running on port ${port}`)
     })
   } catch (error) {
-    console.log("Something went wrong");
+    await prisma.$disconnect()
+    console.log("Server error: ", error);
   }
 
 }
 
+main()

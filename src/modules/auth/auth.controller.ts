@@ -3,13 +3,17 @@ import { catchAsync } from "../../shared/catchAsync";
 import { sendResponse } from "../../shared/sendResponse";
 import { AuthService } from "./auth.service";
 
+// Better Auth returns the session cookie on a Headers object; forward it to the
+// Express response so the browser stores (or clears) it.
+const forwardSetCookie = (res: Response, headers: Headers) => {
+    const cookies = headers.getSetCookie();
+    if (cookies.length) res.setHeader("Set-Cookie", cookies);
+};
 
 export const AuthController = {
-    SignUp: catchAsync(async (req: Request, res: Response) => {
+    signUp: catchAsync(async (req: Request, res: Response) => {
         const { user, headers } = await AuthService.signUp(req.body, req.headers);
-
-        const cookies = headers.getSetCookie();
-        if (cookies.length) res.setHeader("Set-Cookie", cookies);
+        forwardSetCookie(res, headers);
 
         sendResponse(res, {
             statusCode: 201,
@@ -19,7 +23,37 @@ export const AuthController = {
         });
     }),
 
-    SignIn:  catchAsync(async(req:Request,res: Response) => {
+    signIn: catchAsync(async (req: Request, res: Response) => {
+        const { user, headers } = await AuthService.signIn(req.body, req.headers);
+        forwardSetCookie(res, headers);
 
+        sendResponse(res, {
+            statusCode: 200,
+            success: true,
+            message: "Signed in successfully",
+            data: user,
+        });
+    }),
+
+    signOut: catchAsync(async (req: Request, res: Response) => {
+        const { headers } = await AuthService.signOut(req.headers);
+        forwardSetCookie(res, headers);
+
+        sendResponse(res, {
+            statusCode: 200,
+            success: true,
+            message: "Signed out successfully",
+        });
+    }),
+
+    signOutAll: catchAsync(async (req: Request, res: Response) => {
+        const { headers } = await AuthService.signOutAll(req.headers);
+        forwardSetCookie(res, headers);
+
+        sendResponse(res, {
+            statusCode: 200,
+            success: true,
+            message: "Signed out from all devices",
+        });
     }),
 }

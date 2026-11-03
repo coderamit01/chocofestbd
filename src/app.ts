@@ -6,7 +6,7 @@ import { IndexRoutes } from './routes';
 import { envVars } from './config/env';
 import cors from "cors"
 import helmet from 'helmet';
-import rateLimit from 'express-rate-limit';
+import { ZodError } from 'zod';
 
 const app = express()
 
@@ -43,6 +43,17 @@ app.use((req, res) => {
 
 
 app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
+    if (err instanceof ZodError) {
+        return res.status(400).json({
+            success: false,
+            message: "Validation failed",
+            errors: err.issues.map((issue) => ({
+                field: issue.path.join("."),
+                message: issue.message,
+            })),
+        })
+    }
+
     const statusCode = err.statusCode ?? 500;
     const message = err.message || "Server Error";
     res.status(statusCode).json({

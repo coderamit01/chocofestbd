@@ -3,8 +3,6 @@ import { catchAsync } from "../../shared/catchAsync";
 import { sendResponse } from "../../shared/sendResponse";
 import { AuthService } from "./auth.service";
 
-// Better Auth returns the session cookie on a Headers object; forward it to the
-// Express response so the browser stores (or clears) it.
 const forwardSetCookie = (res: Response, headers: Headers) => {
     const cookies = headers.getSetCookie();
     if (cookies.length) res.setHeader("Set-Cookie", cookies);

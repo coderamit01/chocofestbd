@@ -13,7 +13,12 @@ export const signUpSchema = z.object({
   password: z
     .string({ error: "Password is required" })
     .min(8, { error: "Password must be at least 8 characters" })
-    .max(128, { error: "Password must be at most 128 characters" })
+    .max(128, { error: "Password must be at most 128 characters" }),
+  phone: z
+    .string({ error: "Phone number must be a string" })
+    .trim()
+    .regex(/^\+8801[3-9]\d{8}$/, { error: "Phone number must be in the format +8801XXXXXXXXX" })
+    .optional(),
 });
 
 export const signInSchema = z.object({

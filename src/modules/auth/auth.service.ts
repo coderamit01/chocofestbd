@@ -8,7 +8,7 @@ import { SignInPayload, SignUpPayload } from "./auth.validation";
 
 export const AuthService = {
     signUp: async (payload: SignUpPayload, reqHeaders: IncomingHttpHeaders) => {
-        const { name, email, password } = payload;
+        const { name, email, password, phone } = payload;
 
         const existingUser = await prisma.user.findUnique({
             where: { email },
@@ -19,8 +19,19 @@ export const AuthService = {
             throw new AppError("An account with this email already exists", 409);
         }
 
+        if (phone) {
+            const phoneTaken = await prisma.user.findUnique({
+                where: { phone },
+                select: { id: true },
+            });
+
+            if (phoneTaken) {
+                throw new AppError("An account with this phone number already exists", 409);
+            }
+        }
+
         const { headers, response } = await auth.api.signUpEmail({
-            body: { name, email, password },
+            body: { name, email, password, ...(phone && { phone }) },
             headers: fromNodeHeaders(reqHeaders),
             returnHeaders: true,
         });

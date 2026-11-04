@@ -3,9 +3,11 @@ model User {
   name          String
   email         String    @unique
   phone         String?   @unique
+  phoneVerified Boolean   @default(false)
   emailVerified Boolean   @default(false)
   image         String?
   role          UserRole  @default(CUSTOMER)
+  isBanned      Boolean   @default(false)
   address       String?
   points        Int       @default(0)
   createdAt     DateTime  @default(now())

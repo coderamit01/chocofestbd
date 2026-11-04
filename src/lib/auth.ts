@@ -25,6 +25,10 @@ export const auth = betterAuth({
         required: false,
         input: false
       },
+      isBanned: {
+        type: "boolean",
+        input: false
+      },
       points: {
         type: "number",
         required: false,

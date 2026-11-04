@@ -54,4 +54,17 @@ export const AuthController = {
             message: "Signed out from all devices",
         });
     }),
+
+    getProfile: catchAsync(async (req: Request, res: Response) => {
+        const user = await AuthService.getProfile(req.user!.id);
+
+        res.setHeader("Cache-Control", "no-store");
+        sendResponse(res, {
+            statusCode: 200,
+            success: true,
+            message: "Profile retrieved successfully",
+            data: user,
+        });
+    })
+    
 }

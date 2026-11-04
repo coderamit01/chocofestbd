@@ -71,4 +71,35 @@ export const AuthService = {
 
         return { headers: responseHeaders };
     },
+
+    getProfile: async (userId: string) => {
+        const user = await prisma.user.findUnique({
+            where: { id: userId },
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                phone: true,
+                phoneVerified: true,
+                emailVerified: true,
+                image: true,
+                role: true,
+                address: true,
+                points: true,
+                isBanned: true,
+                createdAt: true,
+            },
+        });
+
+        if (!user) {
+            throw new AppError("You are not authorized", 401);
+        }
+
+        if (user.isBanned) {
+            throw new AppError("Your account has been suspended", 403);
+        }
+
+        const { isBanned, ...profile } = user;
+        return profile;
+    }
 }

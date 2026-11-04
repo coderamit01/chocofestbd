@@ -4,7 +4,7 @@ import { auth } from "../lib/auth";
 import { AppError } from "../helpers/AppError";
 import { UserRole } from "../generated/prisma/enums";
 
-const authentication = (...roles: UserRole[]) => {
+const Authentication = (...roles: UserRole[]) => {
     return async (req: Request, _res: Response, next: NextFunction) => {
         try {
             const session = await auth.api.getSession({
@@ -28,4 +28,4 @@ const authentication = (...roles: UserRole[]) => {
 }
 
 
-export default authentication;
+export default Authentication;

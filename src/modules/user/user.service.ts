@@ -19,15 +19,21 @@ const userSelect = {
     isBanned: true,
     address: true,
     points: true,
+    deletedAt: true,
     createdAt: true,
     updatedAt: true,
 } satisfies Prisma.UserSelect;
 
 export const userService = {
-    getAllUsers: async (query: GetAllUsersQuery, filter: Prisma.UserWhereInput = {}) => {
+    getAllUsers: async (
+        query: GetAllUsersQuery,
+        filter: Prisma.UserWhereInput = {},
+        orderBy: Prisma.UserOrderByWithRelationInput = { createdAt: "desc" },
+    ) => {
         const { searchTerm } = query;
 
         const where: Prisma.UserWhereInput = {
+            deletedAt: null,
             ...filter,
             ...(searchTerm && {
                 OR: [
@@ -42,7 +48,7 @@ export const userService = {
             prisma.user.findMany({
                 where,
                 select: userSelect,
-                orderBy: { createdAt: "desc" },
+                orderBy,
                 ...getPagination(query),
             }),
             prisma.user.count({ where }),
@@ -55,9 +61,26 @@ export const userService = {
         return userService.getAllUsers(query, { role: UserRole.CUSTOMER });
     },
 
+    getTrashedUsers: async (query: GetAllUsersQuery) => {
+        return userService.getAllUsers(query, { deletedAt: { not: null } }, { deletedAt: "desc" });
+    },
+
+    getUserById: async (userId: string) => {
+        const user = await prisma.user.findFirst({
+            where: { id: userId, deletedAt: null },
+            select: userSelect,
+        });
+
+        if (!user) {
+            throw new AppError("User not found", 404);
+        }
+
+        return user;
+    },
+
     updateUser: async (actor: IActor, userId: string, payload: UpdateUserPayload) => {
-        const target = await prisma.user.findUnique({
-            where: { id: userId },
+        const target = await prisma.user.findFirst({
+            where: { id: userId, deletedAt: null },
             select: { role: true, phone: true },
         });
 
@@ -109,5 +132,67 @@ export const userService = {
         ]);
 
         return user;
+    },
+
+    moveToTrash: async (actor: IActor, userId: string) => {
+        if (actor.id === userId) {
+            throw new AppError("You cannot move your own account to trash", 400);
+        }
+
+        const target = await prisma.user.findFirst({
+            where: { id: userId, deletedAt: null },
+            select: { role: true },
+        });
+
+        if (!target) {
+            throw new AppError("User not found", 404);
+        }
+
+        if (actor.role === UserRole.ADMIN && target.role === UserRole.SUPER_ADMIN) {
+            throw new AppError("Admin cannot move a super admin to trash", 403);
+        }
+
+        await prisma.$transaction([
+            prisma.user.update({ where: { id: userId }, data: { deletedAt: new Date() } }),
+            prisma.session.deleteMany({ where: { userId } }),
+        ]);
+    },
+
+    restoreUser: async (actor: IActor, userId: string) => {
+        const target = await prisma.user.findFirst({
+            where: { id: userId, deletedAt: { not: null } },
+            select: { role: true },
+        });
+
+        if (!target) {
+            throw new AppError("User not found in trash", 404);
+        }
+
+        if (actor.role === UserRole.ADMIN && target.role === UserRole.SUPER_ADMIN) {
+            throw new AppError("Admin cannot restore a super admin", 403);
+        }
+
+        return prisma.user.update({
+            where: { id: userId },
+            data: { deletedAt: null },
+            select: userSelect,
+        });
+    },
+
+    hardDeleteUser: async (actor: IActor, userId: string) => {
+        if (actor.id === userId) {
+            throw new AppError("You cannot delete your own account", 400);
+        }
+
+        const target = await prisma.user.findUnique({
+            where: { id: userId },
+            select: { id: true },
+        });
+
+        if (!target) {
+            throw new AppError("User not found", 404);
+        }
+
+        await prisma.user.delete({ where: { id: userId } });
     },
 }

@@ -22,7 +22,7 @@ export const updateUserSchema = z
             phone: z
                 .string({ error: "Phone number must be a string" })
                 .trim()
-                .regex(/^\+8801[3-9]\d{8}$/, { error: "Phone number must be in the format +8801XXXXXXXXX" })
+                .regex(/^01[3-9]\d{8}$/, { error: "Phone number must be in the format +8801XXXXXXXXX" })
                 .nullable()
                 .exactOptional(),
             address: z

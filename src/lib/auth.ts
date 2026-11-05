@@ -1,5 +1,6 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
+import { APIError } from "better-auth/api";
 import { prisma } from "./prisma";
 import { UserRole } from "../generated/prisma/enums";
 
@@ -33,6 +34,25 @@ export const auth = betterAuth({
         type: "number",
         required: false,
         input: false,
+      },
+    },
+  },
+  databaseHooks: {
+    session: {
+      create: {
+        before: async (session) => {
+          const user = await prisma.user.findUnique({
+            where: { id: session.userId },
+            select: { isBanned: true, deletedAt: true },
+          });
+
+          if (!user || user.deletedAt) {
+            throw new APIError("FORBIDDEN", { message: "This account no longer exists" });
+          }
+          if (user.isBanned) {
+            throw new APIError("FORBIDDEN", { message: "Your account has been suspended" });
+          }
+        },
       },
     },
   },

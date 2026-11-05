@@ -1,8 +1,9 @@
 import { Request, Response } from "express";
 import { catchAsync } from "../../shared/catchAsync";
 import { sendResponse } from "../../shared/sendResponse";
+import { UserRole } from "../../generated/prisma/enums";
 import { userService } from "./user.service";
-import { getAllUsersQuerySchema } from "./user.validation";
+import { getAllUsersQuerySchema, userIdParamSchema } from "./user.validation";
 
 export const userController = {
     getAllUsers: catchAsync(async (req: Request, res: Response) => {
@@ -30,6 +31,21 @@ export const userController = {
             message: "Customers retrieved successfully",
             data: users,
             meta,
+        });
+    }),
+
+    updateUser: catchAsync(async (req: Request, res: Response) => {
+        const { userId } = userIdParamSchema.parse(req.params);
+        const actor = { id: req.user!.id, role: req.user!.role as UserRole };
+
+        const user = await userService.updateUser(actor, userId, req.body);
+
+        res.setHeader("Cache-Control", "no-store");
+        sendResponse(res, {
+            statusCode: 200,
+            success: true,
+            message: "User updated successfully",
+            data: user,
         });
     }),
 }

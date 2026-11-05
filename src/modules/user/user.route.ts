@@ -1,13 +1,17 @@
 import { Router } from "express";
-import authentication from "../../middlewares/Authentication";
 import { UserRole } from "../../generated/prisma/enums";
 import { userController } from "./user.controller";
+import Authentication from "../../middlewares/Authentication";
+import { validateRequest } from "../../middlewares/validateRequest";
+import { updateUserSchema } from "./user.validation";
 
 
 const router = Router();
 
-router.get("/", authentication(UserRole.SUPER_ADMIN, UserRole.ADMIN), userController.getAllUsers);
-router.get("/customers", authentication(UserRole.SUPER_ADMIN, UserRole.ADMIN), userController.getAllCustomers);
+router.get("/", Authentication(UserRole.SUPER_ADMIN, UserRole.ADMIN), userController.getAllUsers);
+router.get("/customers", Authentication(UserRole.SUPER_ADMIN, UserRole.ADMIN), userController.getAllCustomers);
+
+router.patch("/:userId", Authentication(), validateRequest(updateUserSchema), userController.updateUser);
 
 
 export const userRoutes = router;

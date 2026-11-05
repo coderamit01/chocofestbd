@@ -1,0 +1,21 @@
+model Brand {
+  id                String    @id @default(uuid(7))
+  name              String
+  slug              String    @unique
+  logo              String?
+  logoPublicId      String?
+  description       String?
+  country           String?
+  isActive          Boolean   @default(true)
+  metaTitle         String?
+  metaDescription   String?
+  metaImage         String?
+  metaImagePublicId String?
+  products          Product[]
+  deletedAt         DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@index([isActive, deletedAt])
+  @@map("brands")
+}

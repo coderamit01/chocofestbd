@@ -1,0 +1,58 @@
+model Product {
+  id                 String   @id @default(uuid(7))
+  name               String
+  slug               String   @unique
+  sku                String   @unique
+  shortDescription   String?
+  description        String?  @db.Text
+  image              String?
+  imagePublicId      String?
+  price              Decimal  @db.Decimal(12, 2)
+  discountPrice      Decimal? @db.Decimal(12, 2)
+  discountPercentage Int?
+  stock              Int      @default(0)
+  lowStockThreshold  Int      @default(5)
+
+  status            ProductStatus   @default(DRAFT)
+  isFeatured        Boolean         @default(false)
+  categoryId        String
+  category          Category        @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  brandId           String?
+  brand             Brand?          @relation(fields: [brandId], references: [id], onDelete: SetNull)
+  images            ProductImage[]
+  tags              Tag[]
+  reviews           ProductReview[]
+  orderItems        OrderItem[]
+  soldCount         Int             @default(0)
+  averageRating     Decimal         @default(0) @db.Decimal(2, 1)
+  reviewCount       Int             @default(0)
+  metaTitle         String?
+  metaDescription   String?
+  metaImage         String?
+  metaImagePublicId String?
+  deletedAt         DateTime?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  @@index([categoryId])
+  @@index([brandId])
+  @@index([status, deletedAt])
+  @@index([isFeatured])
+  @@index([price])
+  @@index([createdAt])
+  @@map("products")
+}
+
+model ProductImage {
+  id        String   @id @default(uuid(7))
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  url       String
+  publicId  String?
+  alt       String?
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@index([productId, sortOrder])
+  @@map("product_images")
+}

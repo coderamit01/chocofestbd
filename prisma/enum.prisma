@@ -3,8 +3,45 @@ enum UserRole {
   ADMIN
   MANAGER
   ORDER_HANDLER
-  RIDER 
+  RIDER
   PACKER
   ACCOUNTANT
   CUSTOMER
+}
+
+enum ProductStatus {
+  DRAFT
+  ACTIVE
+  ARCHIVED
+  TRASH
+}
+
+enum ReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PACKED
+  SHIPPED
+  DELIVERED
+  RETURNED
+  CANCELLED
+}
+
+enum PaymentMethod {
+  COD
+  SSLCOMMERZ
+  BKASH
+  NAGAD
+}
+
+enum PaymentStatus {
+  UNPAID
+  PAID
+  PARTIALLY_REFUNDED
+  REFUNDED
 }

@@ -1,0 +1,9 @@
+model Tag {
+  id        String    @id @default(uuid(7))
+  name      String
+  slug      String    @unique
+  products  Product[]
+  createdAt DateTime  @default(now())
+
+  @@map("tags")
+}

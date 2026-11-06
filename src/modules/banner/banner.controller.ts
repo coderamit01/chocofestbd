@@ -1,0 +1,66 @@
+import { Request, Response } from "express";
+import { catchAsync } from "../../shared/catchAsync";
+import { sendResponse } from "../../shared/sendResponse";
+import { bannerService } from "./banner.service";
+import { bannerCategoryIdParamSchema } from "./banner.validation";
+
+export const bannerController = {
+    createBannerCategory: catchAsync(async (req: Request, res: Response) => {
+        const category = await bannerService.createBannerCategory(req.body);
+
+        sendResponse(res, {
+            statusCode: 201,
+            success: true,
+            message: "Banner category created successfully",
+            data: category,
+        });
+    }),
+
+    getAllBannerCategories: catchAsync(async (_req: Request, res: Response) => {
+        const categories = await bannerService.getAllBannerCategories();
+
+        res.setHeader("Cache-Control", "no-store");
+        sendResponse(res, {
+            statusCode: 200,
+            success: true,
+            message: "Banner categories retrieved successfully",
+            data: categories,
+        });
+    }),
+
+    getBannerCategoryById: catchAsync(async (req: Request, res: Response) => {
+        const { categoryId } = bannerCategoryIdParamSchema.parse(req.params);
+        const category = await bannerService.getBannerCategoryById(categoryId);
+
+        res.setHeader("Cache-Control", "no-store");
+        sendResponse(res, {
+            statusCode: 200,
+            success: true,
+            message: "Banner category retrieved successfully",
+            data: category,
+        });
+    }),
+
+    updateBannerCategory: catchAsync(async (req: Request, res: Response) => {
+        const { categoryId } = bannerCategoryIdParamSchema.parse(req.params);
+        const category = await bannerService.updateBannerCategory(categoryId, req.body);
+
+        sendResponse(res, {
+            statusCode: 200,
+            success: true,
+            message: "Banner category updated successfully",
+            data: category,
+        });
+    }),
+
+    deleteBannerCategory: catchAsync(async (req: Request, res: Response) => {
+        const { categoryId } = bannerCategoryIdParamSchema.parse(req.params);
+        await bannerService.deleteBannerCategory(categoryId);
+
+        sendResponse(res, {
+            statusCode: 200,
+            success: true,
+            message: "Banner category deleted successfully",
+        });
+    }),
+}

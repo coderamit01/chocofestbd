@@ -1,0 +1,35 @@
+model DeliveryZone {
+  id            String    @id @default(uuid(7))
+  name          String    @unique
+  charge        Decimal   @db.Decimal(12, 2)
+  estimatedDays String?
+  sortOrder     Int       @default(0)
+  isActive      Boolean   @default(true)
+  addresses     Address[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([isActive, sortOrder])
+  @@map("delivery_zones")
+}
+
+model Address {
+  id             String       @id @default(uuid(7))
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  label          String?
+  recipientName  String
+  recipientPhone String
+  address        String
+  area           String?
+  city           String
+  deliveryZoneId String
+  deliveryZone   DeliveryZone @relation(fields: [deliveryZoneId], references: [id], onDelete: Restrict)
+  isDefault      Boolean      @default(false)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@index([userId, isDefault])
+  @@index([deliveryZoneId])
+  @@map("addresses")
+}

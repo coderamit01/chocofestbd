@@ -23,6 +23,8 @@ model Product {
   tags              Tag[]
   reviews           ProductReview[]
   orderItems        OrderItem[]
+  cartItems         CartItem[]
+  wishlists         Wishlist[]
   soldCount         Int             @default(0)
   averageRating     Decimal         @default(0) @db.Decimal(2, 1)
   reviewCount       Int             @default(0)

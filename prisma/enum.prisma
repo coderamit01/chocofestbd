@@ -25,6 +25,7 @@ enum ReviewStatus {
 enum OrderStatus {
   PENDING
   CONFIRMED
+  PROCESSING
   PACKED
   SHIPPED
   DELIVERED
@@ -45,3 +46,4 @@ enum PaymentStatus {
   PARTIALLY_REFUNDED
   REFUNDED
 }
+

@@ -14,7 +14,9 @@ router.get("/categories/:categoryId", Authentication(UserRole.SUPER_ADMIN, UserR
 router.put("/categories/:categoryId", Authentication(UserRole.SUPER_ADMIN, UserRole.ADMIN), validateRequest(bannerCategorySchema), bannerController.updateBannerCategory);
 router.delete("/categories/:categoryId", Authentication(UserRole.SUPER_ADMIN, UserRole.ADMIN), bannerController.deleteBannerCategory);
 
-// router.post("/", bannerController.createBanner)
+
+
+router.post("/", bannerController.createBanner)
 
 
 

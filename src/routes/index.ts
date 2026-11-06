@@ -1,7 +1,7 @@
 import { Router } from "express"
 import { authRoutes } from "../modules/auth/auth.route";
 import { userRoutes } from "../modules/user/user.route";
-import { bannerRoutes } from "../modules/banner/banner.auth";
+import { bannerRoutes } from "../modules/banner/banner.route";
 
 
 const router = Router();

@@ -3,7 +3,7 @@ import { UserRole } from "../../generated/prisma/enums";
 import Authentication from "../../middlewares/Authentication";
 import { validateRequest } from "../../middlewares/validateRequest";
 import { bannerController } from "./banner.controller";
-import { bannerCategorySchema } from "./banner.validation";
+import { bannerCategorySchema, createBannerSchema, updateBannerSchema } from "./banner.validation";
 
 
 const router = Router();
@@ -14,12 +14,11 @@ router.get("/categories/:categoryId", Authentication(UserRole.SUPER_ADMIN, UserR
 router.put("/categories/:categoryId", Authentication(UserRole.SUPER_ADMIN, UserRole.ADMIN), validateRequest(bannerCategorySchema), bannerController.updateBannerCategory);
 router.delete("/categories/:categoryId", Authentication(UserRole.SUPER_ADMIN, UserRole.ADMIN), bannerController.deleteBannerCategory);
 
-
-
-// router.post("/", bannerController.createBanner)
-
-
-
+router.post("/", Authentication(UserRole.SUPER_ADMIN, UserRole.ADMIN), validateRequest(createBannerSchema), bannerController.createBanner);
+router.get("/", Authentication(UserRole.SUPER_ADMIN, UserRole.ADMIN), bannerController.getAllBanners);
+router.get("/:bannerId", Authentication(UserRole.SUPER_ADMIN, UserRole.ADMIN), bannerController.getBannerById);
+router.put("/:bannerId", Authentication(UserRole.SUPER_ADMIN, UserRole.ADMIN), validateRequest(updateBannerSchema), bannerController.updateBanner);
+router.delete("/:bannerId", Authentication(UserRole.SUPER_ADMIN, UserRole.ADMIN), bannerController.deleteBanner);
 
 
 export const bannerRoutes = router;

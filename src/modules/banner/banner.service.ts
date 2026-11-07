@@ -2,6 +2,7 @@ import { prisma } from "../../lib/prisma";
 import { AppError } from "../../helpers/AppError";
 import type { Prisma } from "../../generated/prisma/client";
 import { paginationMeta, getPagination } from "../../shared/pagination";
+import { deleteFile, getFileUrl, uploadFile } from "../../lib/storage";
 import type {
     BannerCategoryPayload,
     CreateBannerPayload,
@@ -20,7 +21,6 @@ const bannerCategorySelect = {
 const bannerSelect = {
     id: true,
     title: true,
-    image: true,
     imageKey: true,
     link: true,
     sortOrder: true,
@@ -29,6 +29,13 @@ const bannerSelect = {
     createdAt: true,
     updatedAt: true,
 } satisfies Prisma.BannerSelect;
+
+type BannerRecord = Prisma.BannerGetPayload<{ select: typeof bannerSelect }>;
+
+const toBannerResponse = ({ imageKey, ...banner }: BannerRecord) => ({
+    ...banner,
+    image: getFileUrl(imageKey),
+});
 
 const ensureBannerCategoryExists = async (categoryId: string) => {
     const category = await prisma.bannerCategory.findUnique({
@@ -124,13 +131,26 @@ export const bannerService = {
         await prisma.bannerCategory.delete({ where: { id: categoryId } });
     },
 
-    createBanner: async (payload: CreateBannerPayload) => {
+    createBanner: async (payload: CreateBannerPayload, file: Express.Multer.File | undefined) => {
+        if (!file) {
+            throw new AppError("Banner image is required", 400);
+        }
+
         await ensureBannerCategoryExists(payload.categoryId);
 
-        return prisma.banner.create({
-            data: payload,
-            select: bannerSelect,
-        });
+        const { key } = await uploadFile(file, "banners");
+
+        try {
+            const banner = await prisma.banner.create({
+                data: { ...payload, imageKey: key },
+                select: bannerSelect,
+            });
+
+            return toBannerResponse(banner);
+        } catch (error) {
+            await deleteFile(key);
+            throw error;
+        }
     },
 
     getAllBanners: async (query: GetAllBannersQuery) => {
@@ -152,7 +172,7 @@ export const bannerService = {
             prisma.banner.count({ where }),
         ]);
 
-        return { banners, meta: paginationMeta(query, total) };
+        return { banners: banners.map(toBannerResponse), meta: paginationMeta(query, total) };
     },
 
     getBannerById: async (bannerId: string) => {
@@ -165,7 +185,7 @@ export const bannerService = {
             throw new AppError("Banner not found", 404);
         }
 
-        return banner;
+        return toBannerResponse(banner);
     },
 
     updateBanner: async (bannerId: string, payload: UpdateBannerPayload) => {
@@ -182,11 +202,13 @@ export const bannerService = {
             await ensureBannerCategoryExists(payload.categoryId);
         }
 
-        return prisma.banner.update({
+        const updated = await prisma.banner.update({
             where: { id: bannerId },
             data: payload,
             select: bannerSelect,
         });
+
+        return toBannerResponse(updated);
     },
 
     deleteBanner: async (bannerId: string) => {

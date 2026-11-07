@@ -23,8 +23,6 @@ const bannerFields = {
         .trim()
         .min(2, { error: "Title must be at least 2 characters" })
         .max(150, { error: "Title must be at most 150 characters" }),
-    image: z.url({ error: "Image must be a valid URL" }),
-    imageKey: z.string({ error: "Image key is required" }).trim().min(1, { error: "Image key is required" }),
     link: z
         .string({ error: "Link must be a string" })
         .trim()
@@ -41,12 +39,19 @@ const bannerFields = {
 export const createBannerSchema = z.strictObject(
     {
         title: bannerFields.title,
-        image: bannerFields.image,
-        imageKey: bannerFields.imageKey,
-        link: bannerFields.link.exactOptional(),
+        link: z
+            .string({ error: "Link must be a string" })
+            .trim()
+            .max(500, { error: "Link must be at most 500 characters" })
+            .transform((value) => value || null)
+            .exactOptional(),
         categoryId: bannerFields.categoryId,
-        sortOrder: bannerFields.sortOrder.exactOptional(),
-        isActive: bannerFields.isActive.exactOptional(),
+        sortOrder: z.coerce
+            .number({ error: "Sort order must be a number" })
+            .int({ error: "Sort order must be a whole number" })
+            .min(0, { error: "Sort order cannot be negative" })
+            .exactOptional(),
+        isActive: z.stringbool({ error: "isActive must be true or false" }).exactOptional(),
     },
     { error: (issue) => (issue.code === "unrecognized_keys" ? `Field not allowed: ${issue.keys.join(", ")}` : undefined) },
 );
@@ -55,8 +60,6 @@ export const updateBannerSchema = z
     .strictObject(
         {
             title: bannerFields.title.exactOptional(),
-            image: bannerFields.image.exactOptional(),
-            imageKey: bannerFields.imageKey.exactOptional(),
             link: bannerFields.link.exactOptional(),
             categoryId: bannerFields.categoryId.exactOptional(),
             sortOrder: bannerFields.sortOrder.exactOptional(),
@@ -64,11 +67,7 @@ export const updateBannerSchema = z
         },
         { error: (issue) => (issue.code === "unrecognized_keys" ? `Field not allowed: ${issue.keys.join(", ")}` : undefined) },
     )
-    .refine((data) => Object.keys(data).length > 0, { error: "Provide at least one field to update" })
-    .refine((data) => (data.image === undefined) === (data.imageKey === undefined), {
-        error: "Image and image key must be updated together",
-        path: ["imageKey"],
-    });
+    .refine((data) => Object.keys(data).length > 0, { error: "Provide at least one field to update" });
 
 export const getAllBannersQuerySchema = paginationQuerySchema.extend({
     categoryId: z.string().trim().min(1).optional(),

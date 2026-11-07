@@ -7,6 +7,9 @@ import { envVars } from './config/env';
 import cors from "cors"
 import helmet from 'helmet';
 import { ZodError } from 'zod';
+import { MulterError } from 'multer';
+import path from 'node:path';
+import { MAX_FILES } from './middlewares/upload';
 
 const app = express()
 
@@ -25,6 +28,16 @@ app.all('/api/auth/{*any}', toNodeHandler(auth));
 
 app.use(express.json({ limit: "1mb" }))
 app.use(cookieParser())
+
+if (envVars.NODE_ENV === "development") {
+    app.use("/uploads", express.static(path.resolve(envVars.STORAGE_LOCAL_DIR), {
+        dotfiles: "deny",
+        index: false,
+        setHeaders: (res) => {
+            res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+        },
+    }))
+}
 
 
 
@@ -51,6 +64,19 @@ app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
                 field: issue.path.join("."),
                 message: issue.message,
             })),
+        })
+    }
+
+    if (err instanceof MulterError) {
+        const multerMessages: Partial<Record<MulterError["code"], string>> = {
+            LIMIT_FILE_SIZE: "Each image must be 5 MB or smaller",
+            LIMIT_FILE_COUNT: `You can upload at most ${MAX_FILES} images`,
+            LIMIT_UNEXPECTED_FILE: `Unexpected file field: ${err.field}`,
+        };
+
+        return res.status(400).json({
+            success: false,
+            message: multerMessages[err.code] ?? err.message,
         })
     }
 

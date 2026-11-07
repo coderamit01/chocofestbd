@@ -4,6 +4,7 @@ import { z } from "zod";
 dotenv.config();
 
 const envSchema = z.object({
+    NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
     PORT: z.coerce.number().int().positive().default(5000),
     APP_URL: z.url(),
     DATABASE_URL: z.url(),
@@ -13,6 +14,8 @@ const envSchema = z.object({
     ADMIN_EMAIL: z.email(),
     ADMIN_PASSWORD: z.string().min(8),
     ADMIN_PHONE: z.string().trim().min(1),
+    STORAGE_LOCAL_DIR: z.string().trim().min(1).default("./uploads"),
+    STORAGE_PUBLIC_URL: z.url().transform((url) => url.replace(/\/+$/, "")),
 });
 
 export type EnvConfig = z.infer<typeof envSchema>;

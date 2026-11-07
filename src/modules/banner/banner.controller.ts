@@ -69,7 +69,7 @@ export const bannerController = {
     }),
 
     createBanner: catchAsync(async (req: Request, res: Response) => {
-        const banner = await bannerService.createBanner(req.body);
+        const banner = await bannerService.createBanner(req.body, req.file);
 
         sendResponse(res, {
             statusCode: 201,

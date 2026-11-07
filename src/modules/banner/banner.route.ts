@@ -2,6 +2,7 @@ import { Router } from "express";
 import { UserRole } from "../../generated/prisma/enums";
 import Authentication from "../../middlewares/Authentication";
 import { validateRequest } from "../../middlewares/validateRequest";
+import { upload } from "../../middlewares/upload";
 import { bannerController } from "./banner.controller";
 import { bannerCategorySchema, createBannerSchema, updateBannerSchema } from "./banner.validation";
 
@@ -14,7 +15,7 @@ router.get("/categories/:categoryId", Authentication(UserRole.SUPER_ADMIN, UserR
 router.put("/categories/:categoryId", Authentication(UserRole.SUPER_ADMIN, UserRole.ADMIN), validateRequest(bannerCategorySchema), bannerController.updateBannerCategory);
 router.delete("/categories/:categoryId", Authentication(UserRole.SUPER_ADMIN, UserRole.ADMIN), bannerController.deleteBannerCategory);
 
-router.post("/", Authentication(UserRole.SUPER_ADMIN, UserRole.ADMIN), validateRequest(createBannerSchema), bannerController.createBanner);
+router.post("/", Authentication(UserRole.SUPER_ADMIN, UserRole.ADMIN), upload.single("image"), validateRequest(createBannerSchema), bannerController.createBanner);
 router.get("/", Authentication(UserRole.SUPER_ADMIN, UserRole.ADMIN), bannerController.getAllBanners);
 router.get("/:bannerId", Authentication(UserRole.SUPER_ADMIN, UserRole.ADMIN), bannerController.getBannerById);
 router.put("/:bannerId", Authentication(UserRole.SUPER_ADMIN, UserRole.ADMIN), validateRequest(updateBannerSchema), bannerController.updateBanner);

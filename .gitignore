@@ -23,3 +23,5 @@ Thumbs.db
 *.log
 
 /src/generated/prisma
+
+/uploads

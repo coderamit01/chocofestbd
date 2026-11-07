@@ -1,10 +1,10 @@
 model Cart {
-  id         String     @id @default(uuid(7))
-  userId     String?    @unique
-  user       User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  items      CartItem[]
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
+  id        String     @id @default(uuid(7))
+  userId    String?    @unique
+  user      User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items     CartItem[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
 
   @@index([updatedAt])
   @@map("carts")

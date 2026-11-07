@@ -16,7 +16,7 @@ router.delete("/categories/:categoryId", Authentication(UserRole.SUPER_ADMIN, Us
 
 
 
-router.post("/", bannerController.createBanner)
+// router.post("/", bannerController.createBanner)
 
 
 

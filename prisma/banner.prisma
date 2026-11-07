@@ -1,15 +1,15 @@
 model Banner {
-  id            String         @id @default(uuid(7))
-  title         String
-  image         String
-  imagePublicId String
-  link          String?
-  categoryId    String
-  category      BannerCategory @relation(fields: [categoryId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  sortOrder     Int            @default(0)
-  isActive      Boolean        @default(true)
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+  id         String         @id @default(uuid(7))
+  title      String
+  image      String
+  imageKey   String
+  link       String?
+  categoryId String
+  category   BannerCategory @relation(fields: [categoryId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  sortOrder  Int            @default(0)
+  isActive   Boolean        @default(true)
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
 
   @@index([categoryId, isActive, sortOrder])
   @@map("banners")

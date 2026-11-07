@@ -1,23 +1,23 @@
 model Category {
-  id                String     @id @default(uuid(7))
-  name              String
-  slug              String     @unique
-  description       String?
-  image             String?
-  imagePublicId     String?
-  parentId          String?
-  parent            Category?  @relation("CategoryTree", fields: [parentId], references: [id], onDelete: Restrict)
-  children          Category[] @relation("CategoryTree")
-  sortOrder         Int        @default(0)
-  isActive          Boolean    @default(true)
-  metaTitle         String?
-  metaDescription   String?
-  metaImage         String?
-  metaImagePublicId String?
-  products          Product[]
-  deletedAt         DateTime?
-  createdAt         DateTime   @default(now())
-  updatedAt         DateTime   @updatedAt
+  id              String     @id @default(uuid(7))
+  name            String
+  slug            String     @unique
+  description     String?
+  image           String?
+  imageKey        String?
+  parentId        String?
+  parent          Category?  @relation("CategoryTree", fields: [parentId], references: [id], onDelete: Restrict)
+  children        Category[] @relation("CategoryTree")
+  sortOrder       Int        @default(0)
+  isActive        Boolean    @default(true)
+  metaTitle       String?
+  metaDescription String?
+  metaImage       String?
+  metaImageKey    String?
+  products        Product[]
+  deletedAt       DateTime?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
 
   @@index([parentId])
   @@index([isActive, deletedAt])

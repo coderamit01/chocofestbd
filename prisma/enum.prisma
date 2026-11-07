@@ -46,4 +46,3 @@ enum PaymentStatus {
   PARTIALLY_REFUNDED
   REFUNDED
 }
-
